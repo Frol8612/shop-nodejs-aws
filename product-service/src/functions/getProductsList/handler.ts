@@ -6,9 +6,7 @@ import { middyfy } from '@libs/lambda';
 import products from '@assets/products.json';
 import { IProduct } from '@models';
 
-import schema from './schema';
-
-const getProductsList: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async () => {
+const getProductsList: ValidatedEventAPIGatewayProxyEvent<IProduct[]> = async () => {
   return formatJSONResponse<IProduct[]>(products);
 }
 

@@ -1,12 +1,10 @@
-import type { FromSchema } from "json-schema-to-ts";
-
-export interface IResponse<T> {
+export interface IResponse {
     statusCode: number;
     headers: IHeader;
-    body?: FromSchema<T>;
+    body?: string;
 }
 
-export  interface IHeader {
+export interface IHeader {
     'Access-Control-Allow-Origin': string;
     'Access-Control-Allow-Credentials': boolean;
 }

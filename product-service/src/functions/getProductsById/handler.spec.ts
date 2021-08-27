@@ -1,10 +1,10 @@
 import { Handler } from 'aws-lambda';
 
 import * as lambda from '@libs/lambda';
-import * as utils from '@libs/getData';
+import * as getData from '@libs/getData';
 import { headers, HttpStatusCode } from '@models';
 
-describe('getProductsList', () => {
+describe('getProductsById', () => {
   let main;
   let mockedGetProducts;
   let products = [{
@@ -25,7 +25,7 @@ describe('getProductsList', () => {
   beforeEach(async () => {
     jest.spyOn(lambda, 'middyfy').mockImplementation((handler: Handler) => handler as never);
 
-    mockedGetProducts = jest.spyOn(utils, 'getProducts');
+    mockedGetProducts = jest.spyOn(getData, 'getProduct');
 
     main = (await import('./handler')).main;
   });
@@ -35,15 +35,39 @@ describe('getProductsList', () => {
   });
 
   it('HttpStatusCode.OK', async () => {
+    const [product] = products;
     const expectedResult = {
-      body: JSON.stringify(products),
+      body: JSON.stringify(product),
       statusCode: HttpStatusCode.OK,
       headers,
     } as any;
 
-    mockedGetProducts.mockReturnValue(products)
+    mockedGetProducts.mockImplementation((id: string) => products.find(p => p.id === id));
 
-    expect(await main()).toEqual(expectedResult);
+    expect(await main({ pathParameters: { productId: product.id }})).toEqual(expectedResult);
+  });
+
+  it('HttpStatusCode.NOT_FOUND', async () => {
+    const expectedResult = {
+      body: JSON.stringify({ message: 'Product not found' }),
+      statusCode: HttpStatusCode.NOT_FOUND,
+      headers,
+    } as any;
+
+    mockedGetProducts.mockImplementation((id: string) => products.find(p => p.id === id));
+
+    expect(await main({ pathParameters: { productId: 'id-3' }})).toEqual(expectedResult);
+  });
+
+
+  it('HttpStatusCode.BAD_REQUEST', async () => {
+    const expectedResult = {
+      body: JSON.stringify({ message: 'Bad request, productId should contain numbers and letters' }),
+      statusCode: HttpStatusCode.BAD_REQUEST,
+      headers,
+    } as any;
+
+    expect(await main({ pathParameters: { productId: 3 }})).toEqual(expectedResult);
   });
 
   it('HttpStatusCode.INTERNAL_SERVER', async () => {

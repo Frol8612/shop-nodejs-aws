@@ -1,17 +1,15 @@
 import 'source-map-support/register';
 
 import { middyfy } from '@libs/lambda';
-import { getProducts } from '@libs/utils';
+import products from '@assets/products.json';
 import { IProduct, IResponse, HttpStatusCode, headers } from '@models';
 
-const getProductsById = async (): Promise<IResponse<IProduct>> => {
+const getProductsList = async (): Promise<IResponse<IProduct>> => {
   try {
-    const data = await getProducts(); 
-
     return {
       headers,
       statusCode: HttpStatusCode.OK,
-      body: JSON.stringify(data),
+      body: JSON.stringify(products),
     }
   } catch {
     return {
@@ -21,4 +19,4 @@ const getProductsById = async (): Promise<IResponse<IProduct>> => {
   }
 }
 
-export const main = middyfy(getProductsById);
+export const main = middyfy(getProductsList);

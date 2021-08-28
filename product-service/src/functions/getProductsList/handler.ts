@@ -2,24 +2,19 @@ import 'source-map-support/register';
 
 import { middyfy } from '@libs/lambda';
 import { getProducts } from '@libs/getData';
-import { IProduct, IResponse, HttpStatusCode, headers } from '@models';
+import { getResponse } from '@libs/handlerResponse';
+import {
+  IProduct, IResponse, HttpStatusCode, IErrorMessage,
+} from '@models';
 
 const getProductsList = async (): Promise<IResponse> => {
   try {
-    const data: IProduct[] = await getProducts(); 
+    const data: IProduct[] = await getProducts();
 
-    return {
-      headers,
-      statusCode: HttpStatusCode.OK,
-      body: JSON.stringify(data),
-    }
+    return getResponse<IProduct[]>(data, HttpStatusCode.OK);
   } catch {
-    return {
-      headers,
-      statusCode: HttpStatusCode.INTERNAL_SERVER,
-      body: JSON.stringify({ message: 'Internal server error' }),
-    }
+    return getResponse<IErrorMessage>({ message: 'Internal server error' }, HttpStatusCode.INTERNAL_SERVER);
   }
-}
+};
 
 export const main = middyfy(getProductsList);

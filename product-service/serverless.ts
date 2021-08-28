@@ -5,6 +5,9 @@ import getProductsById from '@functions/getProductsById';
 
 const serverlessConfiguration: AWS = {
   service: 'product-service',
+  package: {
+    individually: true,
+  },
   frameworkVersion: '2',
   custom: {
     webpack: {

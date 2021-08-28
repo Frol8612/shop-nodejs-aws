@@ -2,24 +2,28 @@ import { Handler } from 'aws-lambda';
 
 import * as lambda from '@libs/lambda';
 import * as utils from '@libs/getData';
-import { headers, HttpStatusCode } from '@models';
+import { HttpStatusCode } from '@models';
 
 describe('getProductsList', () => {
   let main;
   let mockedGetProducts;
-  let products = [{
-    "count": 1,
-    "description": "description-1",
-    "id": "id-1",
-    "price": 3,
-    "title": "title-1"
+  const headers = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Credentials': true,
+  };
+  const products = [{
+    count: 1,
+    description: 'description-1',
+    id: 'id-1',
+    price: 3,
+    title: 'title-1',
   },
   {
-    "count": 2,
-    "description": "description-2",
-    "id": "id-2",
-    "price": 4,
-    "title": "title-2"
+    count: 2,
+    description: 'description-2',
+    id: 'id-2',
+    price: 4,
+    title: 'title-2',
   }];
 
   beforeEach(async () => {
@@ -41,7 +45,7 @@ describe('getProductsList', () => {
       headers,
     } as any;
 
-    mockedGetProducts.mockReturnValue(products)
+    mockedGetProducts.mockReturnValue(products);
 
     expect(await main()).toEqual(expectedResult);
   });
@@ -53,7 +57,7 @@ describe('getProductsList', () => {
       headers,
     } as any;
 
-    mockedGetProducts.mockImplementation(() => { 
+    mockedGetProducts.mockImplementation(() => {
       throw new Error();
     });
 

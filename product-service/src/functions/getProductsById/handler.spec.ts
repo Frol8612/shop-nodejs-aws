@@ -2,24 +2,28 @@ import { Handler } from 'aws-lambda';
 
 import * as lambda from '@libs/lambda';
 import * as getData from '@libs/getData';
-import { headers, HttpStatusCode } from '@models';
+import { HttpStatusCode } from '@models';
 
 describe('getProductsById', () => {
   let main;
   let mockedGetProducts;
-  let products = [{
-    "count": 1,
-    "description": "description-1",
-    "id": "id-1",
-    "price": 3,
-    "title": "title-1"
+  const headers = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Credentials': true,
+  };
+  const products = [{
+    count: 1,
+    description: 'description-1',
+    id: 'id-1',
+    price: 3,
+    title: 'title-1',
   },
   {
-    "count": 2,
-    "description": "description-2",
-    "id": "id-2",
-    "price": 4,
-    "title": "title-2"
+    count: 2,
+    description: 'description-2',
+    id: 'id-2',
+    price: 4,
+    title: 'title-2',
   }];
 
   beforeEach(async () => {
@@ -42,9 +46,9 @@ describe('getProductsById', () => {
       headers,
     } as any;
 
-    mockedGetProducts.mockImplementation((id: string) => products.find(p => p.id === id));
+    mockedGetProducts.mockImplementation((id: string) => products.find((p) => p.id === id));
 
-    expect(await main({ pathParameters: { productId: product.id }})).toEqual(expectedResult);
+    expect(await main({ pathParameters: { productId: product.id } })).toEqual(expectedResult);
   });
 
   it('HttpStatusCode.NOT_FOUND', async () => {
@@ -54,11 +58,10 @@ describe('getProductsById', () => {
       headers,
     } as any;
 
-    mockedGetProducts.mockImplementation((id: string) => products.find(p => p.id === id));
+    mockedGetProducts.mockImplementation((id: string) => products.find((p) => p.id === id));
 
-    expect(await main({ pathParameters: { productId: 'id-3' }})).toEqual(expectedResult);
+    expect(await main({ pathParameters: { productId: 'id-3' } })).toEqual(expectedResult);
   });
-
 
   it('HttpStatusCode.BAD_REQUEST', async () => {
     const expectedResult = {
@@ -67,7 +70,7 @@ describe('getProductsById', () => {
       headers,
     } as any;
 
-    expect(await main({ pathParameters: { productId: 3 }})).toEqual(expectedResult);
+    expect(await main({ pathParameters: { productId: 3 } })).toEqual(expectedResult);
   });
 
   it('HttpStatusCode.INTERNAL_SERVER', async () => {
@@ -77,7 +80,7 @@ describe('getProductsById', () => {
       headers,
     } as any;
 
-    mockedGetProducts.mockImplementation(() => { 
+    mockedGetProducts.mockImplementation(() => {
       throw new Error();
     });
 

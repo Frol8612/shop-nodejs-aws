@@ -1,10 +1,13 @@
 import 'source-map-support/register';
 
-import type { APIGatewayProxyEvent } from "aws-lambda"
+import type { APIGatewayProxyEvent } from 'aws-lambda';
 
 import { middyfy } from '@libs/lambda';
-import { IProduct, IResponse, HttpStatusCode, headers } from '@models';
+import {
+  IProduct, IResponse, HttpStatusCode, IErrorMessage,
+} from '@models';
 import { getProduct } from '@libs/getData';
+import { getResponse } from '@libs/handlerResponse';
 
 const getProductsById = async (event: APIGatewayProxyEvent): Promise<IResponse> => {
   try {
@@ -15,32 +18,16 @@ const getProductsById = async (event: APIGatewayProxyEvent): Promise<IResponse> 
       const product: IProduct = await getProduct(productId);
 
       if (product) {
-        return {
-          headers,
-          statusCode: HttpStatusCode.OK,
-          body: JSON.stringify(product),
-        }
+        return getResponse<IProduct>(product, HttpStatusCode.OK);
       }
 
-      return {
-        headers,
-        statusCode: HttpStatusCode.NOT_FOUND,
-        body: JSON.stringify({ message: 'Product not found' }),
-      }
+      return getResponse<IErrorMessage>({ message: 'Product not found' }, HttpStatusCode.NOT_FOUND);
     }
 
-    return {
-      headers,
-      statusCode: HttpStatusCode.BAD_REQUEST,
-      body: JSON.stringify({ message: 'Bad request, productId should contain numbers and letters' }),
-    }
+    return getResponse<IErrorMessage>({ message: 'Bad request, productId should contain numbers and letters' }, HttpStatusCode.BAD_REQUEST);
   } catch {
-    return {
-      headers,
-      statusCode: HttpStatusCode.INTERNAL_SERVER,
-      body: JSON.stringify({ message: 'Internal server error' }),
-    }
+    return getResponse<IErrorMessage>({ message: 'Internal server error' }, HttpStatusCode.INTERNAL_SERVER);
   }
-}
+};
 
 export const main = middyfy(getProductsById);

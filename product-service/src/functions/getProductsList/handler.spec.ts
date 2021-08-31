@@ -38,7 +38,7 @@ describe('getProductsList', () => {
     jest.resetModules();
   });
 
-  it('HttpStatusCode.OK', async () => {
+  it('should return products with status 200', async () => {
     const expectedResult = {
       body: JSON.stringify(products),
       statusCode: HttpStatusCode.OK,
@@ -50,7 +50,7 @@ describe('getProductsList', () => {
     expect(await main()).toEqual(expectedResult);
   });
 
-  it('HttpStatusCode.INTERNAL_SERVER', async () => {
+  it('should return error message with status 500', async () => {
     const expectedResult = {
       body: JSON.stringify({ message: 'Internal server error' }),
       statusCode: HttpStatusCode.INTERNAL_SERVER,

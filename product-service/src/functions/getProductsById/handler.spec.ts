@@ -38,7 +38,7 @@ describe('getProductsById', () => {
     jest.resetModules();
   });
 
-  it('HttpStatusCode.OK', async () => {
+  it('should return product with status 200', async () => {
     const [product] = products;
     const expectedResult = {
       body: JSON.stringify(product),
@@ -51,7 +51,7 @@ describe('getProductsById', () => {
     expect(await main({ pathParameters: { productId: product.id } })).toEqual(expectedResult);
   });
 
-  it('HttpStatusCode.NOT_FOUND', async () => {
+  it('should return error message with status 404', async () => {
     const expectedResult = {
       body: JSON.stringify({ message: 'Product not found' }),
       statusCode: HttpStatusCode.NOT_FOUND,
@@ -63,7 +63,7 @@ describe('getProductsById', () => {
     expect(await main({ pathParameters: { productId: 'id-3' } })).toEqual(expectedResult);
   });
 
-  it('HttpStatusCode.BAD_REQUEST', async () => {
+  it('should return error message with status 400', async () => {
     const expectedResult = {
       body: JSON.stringify({ message: 'Bad request, productId should contain numbers and letters' }),
       statusCode: HttpStatusCode.BAD_REQUEST,
@@ -73,7 +73,7 @@ describe('getProductsById', () => {
     expect(await main({ pathParameters: { productId: 3 } })).toEqual(expectedResult);
   });
 
-  it('HttpStatusCode.INTERNAL_SERVER', async () => {
+  it('should return error message with status 500', async () => {
     const expectedResult = {
       body: JSON.stringify({ message: 'Internal server error' }),
       statusCode: HttpStatusCode.INTERNAL_SERVER,

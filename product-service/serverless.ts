@@ -32,6 +32,7 @@ const serverlessConfiguration: AWS = {
   },
   // import the function via paths
   functions: { getProductsList, getProductsById },
+  useDotenv: true,
 };
 
 module.exports = serverlessConfiguration;

@@ -9,17 +9,20 @@ import {
 import { db } from '@db';
 
 const getProductsList = async (): Promise<IResponse> => {
-  await db.connect();
-
   try {
-    const { rows: products } = await db.query<IProduct>('select * from product');
-    // const { rows: counts } = await db.query<Record<string, number>>('select * from stock');
+    await db.connect();
+
+    const { rows: products } = await db.query<IProduct>(`
+      select p.id, p.title, p.description, p.price, s.count
+      from product p
+      inner join stock s on p.id = s.product_id;
+    `);
 
     return getResponse<IProduct[]>(products, HttpStatusCode.OK);
   } catch {
     return getResponse<IErrorMessage>({ message: 'Internal server error' }, HttpStatusCode.INTERNAL_SERVER);
   } finally {
-    db.end();
+    await db.end();
   }
 };
 

@@ -10,7 +10,6 @@ create table if not exists product (
 alter table product add constraint product_title unique (title);
 
 create table if not exists stock (
-  id uuid primary key default uuid_generate_v4(),
   product_id uuid,
   count integer,
   foreign key (product_id) references product (id)

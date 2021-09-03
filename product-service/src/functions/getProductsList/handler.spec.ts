@@ -1,12 +1,12 @@
 import { Handler } from 'aws-lambda';
 
 import * as lambda from '@libs/lambda';
-import * as utils from '@libs/getData';
 import { HttpStatusCode } from '@models';
+import { db } from '@db';
 
 describe('getProductsList', () => {
   let main;
-  let mockedGetProducts;
+  let mockedDbQuery;
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Credentials': true,
@@ -29,9 +29,14 @@ describe('getProductsList', () => {
   beforeEach(async () => {
     jest.spyOn(lambda, 'middyfy').mockImplementation((handler: Handler) => handler as never);
 
-    mockedGetProducts = jest.spyOn(utils, 'getProducts');
+    jest.spyOn(db, 'connect').mockImplementation(() => Promise.resolve());
+    mockedDbQuery = jest.spyOn(db, 'query');
 
     main = (await import('./handler')).main;
+  });
+
+  afterEach(() => {
+    jest.spyOn(db, 'end').mockImplementation(() => Promise.resolve());
   });
 
   afterAll(() => {
@@ -45,7 +50,7 @@ describe('getProductsList', () => {
       headers,
     } as any;
 
-    mockedGetProducts.mockReturnValue(products);
+    await mockedDbQuery.mockImplementation(() => Promise.resolve(({ rows: products })));
 
     expect(await main()).toEqual(expectedResult);
   });
@@ -57,7 +62,7 @@ describe('getProductsList', () => {
       headers,
     } as any;
 
-    mockedGetProducts.mockImplementation(() => {
+    await mockedDbQuery.mockImplementation(() => {
       throw new Error();
     });
 

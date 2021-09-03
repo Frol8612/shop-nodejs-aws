@@ -1,12 +1,12 @@
 import { Handler } from 'aws-lambda';
 
 import * as lambda from '@libs/lambda';
-import * as getData from '@libs/getData';
+import { db } from '@db';
 import { HttpStatusCode } from '@models';
 
 describe('getProductsById', () => {
   let main;
-  let mockedGetProducts;
+  let mockedDbQuery;
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Credentials': true,
@@ -14,14 +14,14 @@ describe('getProductsById', () => {
   const products = [{
     count: 1,
     description: 'description-1',
-    id: 'id-1',
+    id: '8154d2cf-ec01-4cdd-b7af-b104164c7112',
     price: 3,
     title: 'title-1',
   },
   {
     count: 2,
     description: 'description-2',
-    id: 'id-2',
+    id: '8154d2cf-ec01-4cdd-b7af-b104164c7113',
     price: 4,
     title: 'title-2',
   }];
@@ -29,9 +29,14 @@ describe('getProductsById', () => {
   beforeEach(async () => {
     jest.spyOn(lambda, 'middyfy').mockImplementation((handler: Handler) => handler as never);
 
-    mockedGetProducts = jest.spyOn(getData, 'getProduct');
+    jest.spyOn(db, 'connect').mockImplementation(() => Promise.resolve());
+    mockedDbQuery = jest.spyOn(db, 'query');
 
     main = (await import('./handler')).main;
+  });
+
+  afterEach(() => {
+    jest.spyOn(db, 'end').mockImplementation(() => Promise.resolve());
   });
 
   afterAll(() => {
@@ -46,7 +51,7 @@ describe('getProductsById', () => {
       headers,
     } as any;
 
-    mockedGetProducts.mockImplementation((id: string) => products.find((p) => p.id === id));
+    await mockedDbQuery.mockImplementation(() => ({ rows: [product] }));
 
     expect(await main({ pathParameters: { productId: product.id } })).toEqual(expectedResult);
   });
@@ -58,9 +63,9 @@ describe('getProductsById', () => {
       headers,
     } as any;
 
-    mockedGetProducts.mockImplementation((id: string) => products.find((p) => p.id === id));
+    await mockedDbQuery.mockImplementation(() => ({ rows: [] }));
 
-    expect(await main({ pathParameters: { productId: 'id-3' } })).toEqual(expectedResult);
+    expect(await main({ pathParameters: { productId: '8154d2cf-ec01-4cdd-b7af-b104164c7114' } })).toEqual(expectedResult);
   });
 
   it('should return error message with status 400', async () => {
@@ -70,7 +75,7 @@ describe('getProductsById', () => {
       headers,
     } as any;
 
-    expect(await main({ pathParameters: { productId: 3 } })).toEqual(expectedResult);
+    expect(await main({ pathParameters: { productId: '8154f-ec1-4cdd-e323b7af-b164c7114' } })).toEqual(expectedResult);
   });
 
   it('should return error message with status 500', async () => {
@@ -80,7 +85,7 @@ describe('getProductsById', () => {
       headers,
     } as any;
 
-    mockedGetProducts.mockImplementation(() => {
+    await mockedDbQuery.mockImplementation(() => {
       throw new Error();
     });
 

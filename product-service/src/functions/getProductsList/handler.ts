@@ -1,10 +1,9 @@
 import 'source-map-support/register';
 
 import { middyfy } from '@libs/lambda';
-// import { getProducts } from '@libs/getData';
 import { getResponse } from '@libs/handlerResponse';
 import {
-  IProduct, IResponse, HttpStatusCode, IErrorMessage,
+  IProduct, IResponse, HttpStatusCode, IMessage,
 } from '@models';
 import { db } from '@db';
 
@@ -20,7 +19,7 @@ const getProductsList = async (): Promise<IResponse> => {
 
     return getResponse<IProduct[]>(products, HttpStatusCode.OK);
   } catch {
-    return getResponse<IErrorMessage>({ message: 'Internal server error' }, HttpStatusCode.INTERNAL_SERVER);
+    return getResponse<IMessage>({ message: 'Internal server error' }, HttpStatusCode.INTERNAL_SERVER);
   } finally {
     await db.end();
   }

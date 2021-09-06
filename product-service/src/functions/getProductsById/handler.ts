@@ -4,7 +4,7 @@ import type { APIGatewayProxyEvent } from 'aws-lambda';
 
 import { middyfy } from '@libs/lambda';
 import {
-  IProduct, IResponse, HttpStatusCode, IErrorMessage,
+  IProduct, IResponse, HttpStatusCode, IMessage,
 } from '@models';
 import { getResponse } from '@libs/handlerResponse';
 import { db } from '@db';
@@ -27,12 +27,12 @@ const getProductsById = async (event: APIGatewayProxyEvent): Promise<IResponse> 
         return getResponse<IProduct>(products[0], HttpStatusCode.OK);
       }
 
-      return getResponse<IErrorMessage>({ message: 'Product not found' }, HttpStatusCode.NOT_FOUND);
+      return getResponse<IMessage>({ message: 'Product not found' }, HttpStatusCode.NOT_FOUND);
     }
 
-    return getResponse<IErrorMessage>({ message: 'Bad request, productId should contain numbers and letters' }, HttpStatusCode.BAD_REQUEST);
+    return getResponse<IMessage>({ message: 'Bad request, productId should contain numbers and letters' }, HttpStatusCode.BAD_REQUEST);
   } catch {
-    return getResponse<IErrorMessage>({ message: 'Internal server error' }, HttpStatusCode.INTERNAL_SERVER);
+    return getResponse<IMessage>({ message: 'Internal server error' }, HttpStatusCode.INTERNAL_SERVER);
   } finally {
     await db.end();
   }

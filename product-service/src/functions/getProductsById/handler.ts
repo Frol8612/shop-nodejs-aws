@@ -17,14 +17,15 @@ const getProductsById = async (event: APIGatewayProxyEvent): Promise<IResponse> 
     await db.connect();
 
     if (productId && patternId.test(productId)) {
-      const { rows: products } = await db.query<IProduct>(`
+      const { rows: [product] } = await db.query<IProduct>(`
         select p.id, p.title, p.description, p.price, s.count
         from product p
         inner join stock s on p.id = s.product_id
         where p.id = '${productId}';
       `);
-      if (products.length) {
-        return getResponse<IProduct>(products[0], HttpStatusCode.OK);
+
+      if (product) {
+        return getResponse<IProduct>(product, HttpStatusCode.OK);
       }
 
       return getResponse<IMessage>({ message: 'Product not found' }, HttpStatusCode.NOT_FOUND);

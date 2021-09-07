@@ -12,5 +12,6 @@ module.exports = {
   },
   rules: {
     'import/prefer-default-export': 'off',
+    'no-template-curly-in-string': 'off',
   },
 };

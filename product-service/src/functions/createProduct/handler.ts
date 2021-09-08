@@ -3,12 +3,12 @@ import 'source-map-support/register';
 import { middyfy } from '@libs/lambda';
 import { getResponse } from '@libs/handlerResponse';
 import {
-  IResponse, HttpStatusCode, IMessage, IEvent,
+  IResponse, HttpStatusCode, IMessage, ProxyEvent,
 } from '@models';
 import { getDb } from '@db';
 import schema from './schema';
 
-const createProduct = async (event: IEvent<typeof schema>): Promise<IResponse> => {
+const createProduct = async (event: ProxyEvent<typeof schema>): Promise<IResponse> => {
   const db = getDb();
   console.log(event);
 

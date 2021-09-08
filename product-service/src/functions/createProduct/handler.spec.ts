@@ -1,12 +1,21 @@
 import { Handler } from 'aws-lambda';
 
 import * as lambda from '@libs/lambda';
-import { db } from '@db';
+import { getDb } from '@db';
 import { HttpStatusCode } from '@models';
+
+jest.mock('@db', () => {
+  const mockGetDb = {
+    connect: jest.fn(),
+    query: jest.fn(),
+    end: jest.fn(),
+  };
+  return { getDb: jest.fn(() => mockGetDb) };
+});
 
 describe('createProduct', () => {
   let main;
-  let mockedDbQuery;
+  let db;
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Credentials': true,
@@ -21,14 +30,8 @@ describe('createProduct', () => {
   beforeEach(async () => {
     jest.spyOn(lambda, 'middyfy').mockImplementation((handler: Handler) => handler as never);
 
-    jest.spyOn(db, 'connect').mockImplementation(() => Promise.resolve());
-    mockedDbQuery = jest.spyOn(db, 'query');
-
+    db = getDb();
     main = (await import('./handler')).main;
-  });
-
-  afterEach(() => {
-    jest.spyOn(db, 'end').mockImplementation(() => Promise.resolve());
   });
 
   afterAll(() => {
@@ -42,7 +45,7 @@ describe('createProduct', () => {
       headers,
     } as any;
 
-    await mockedDbQuery.mockImplementation(() => ({ rows: [{ id: '8154d2cf-ec01-4cdd-b7af-b104164c7112' }] }));
+    db.query.mockResolvedValue({ rows: [{ id: '8154d2cf-ec01-4cdd-b7af-b104164c7112' }] });
 
     expect(await main({ body: { ...product } })).toEqual(expectedResult);
   });
@@ -54,11 +57,7 @@ describe('createProduct', () => {
       headers,
     } as any;
 
-    await mockedDbQuery.mockImplementation(() => {
-      throw new Error();
-    });
-
-    await mockedDbQuery.mockImplementation(() => Promise.resolve());
+    db.query.mockRejectedValueOnce(new Error());
 
     expect(await main({ body: { ...product } })).toEqual(expectedResult);
   });

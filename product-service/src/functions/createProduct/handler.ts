@@ -1,17 +1,16 @@
 import 'source-map-support/register';
 
-import type { APIGatewayProxyEvent } from 'aws-lambda';
-import type { FromSchema } from 'json-schema-to-ts';
-
 import { middyfy } from '@libs/lambda';
 import { getResponse } from '@libs/handlerResponse';
-import { IResponse, HttpStatusCode, IMessage } from '@models';
+import {
+  IResponse, HttpStatusCode, IMessage, IEvent,
+} from '@models';
 import { db } from '@db';
 import schema from './schema';
 
-type Event<T> = Omit<APIGatewayProxyEvent, 'body'> & { body: FromSchema<T> };
+const createProduct = async (event: IEvent<typeof schema>): Promise<IResponse> => {
+  console.log(event);
 
-const createProduct = async (event: Event<typeof schema>): Promise<IResponse> => {
   try {
     const {
       title = '', description = '', price = 0, count = 0,

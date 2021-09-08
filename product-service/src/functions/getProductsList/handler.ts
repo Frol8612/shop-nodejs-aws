@@ -3,11 +3,13 @@ import 'source-map-support/register';
 import { middyfy } from '@libs/lambda';
 import { getResponse } from '@libs/handlerResponse';
 import {
-  IProduct, IResponse, HttpStatusCode, IMessage,
+  IProduct, IResponse, HttpStatusCode, IMessage, IEvent,
 } from '@models';
 import { db } from '@db';
 
-const getProductsList = async (): Promise<IResponse> => {
+const getProductsList = async (event: IEvent<null>): Promise<IResponse> => {
+  console.log(event);
+
   try {
     await db.connect();
 

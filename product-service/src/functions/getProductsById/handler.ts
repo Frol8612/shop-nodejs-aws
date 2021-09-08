@@ -1,15 +1,15 @@
 import 'source-map-support/register';
 
-import type { APIGatewayProxyEvent } from 'aws-lambda';
-
 import { middyfy } from '@libs/lambda';
 import {
-  IProduct, IResponse, HttpStatusCode, IMessage,
+  IProduct, IResponse, HttpStatusCode, IMessage, IEvent,
 } from '@models';
 import { getResponse } from '@libs/handlerResponse';
 import { db } from '@db';
 
-const getProductsById = async (event: APIGatewayProxyEvent): Promise<IResponse> => {
+const getProductsById = async (event: IEvent<null>): Promise<IResponse> => {
+  console.log(event);
+
   try {
     const { productId } = event.pathParameters;
     const patternId = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/;
@@ -21,8 +21,8 @@ const getProductsById = async (event: APIGatewayProxyEvent): Promise<IResponse> 
         select p.id, p.title, p.description, p.price, s.count
         from product p
         inner join stock s on p.id = s.product_id
-        where p.id = '${productId}';
-      `);
+        where p.id = $1;
+      `, [productId]);
 
       if (product) {
         return getResponse<IProduct>(product, HttpStatusCode.OK);

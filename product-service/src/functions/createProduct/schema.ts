@@ -12,6 +12,7 @@ export default {
     price: {
       type: 'number',
       minimum: 0,
+      multipleOf: 0.01,
     },
     count: {
       type: 'integer',

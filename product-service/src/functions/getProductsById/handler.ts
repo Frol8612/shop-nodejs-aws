@@ -19,7 +19,7 @@ const getProductsById = async (event: IEvent<null>): Promise<IResponse> => {
 
     if (productId && patternId.test(productId)) {
       const { rows: [product] } = await db.query<IProduct>(`
-        select p.id, p.title, p.description, p.price, s.count
+        select p.id, p.title, p.description, p.price::float, s.count
         from product p
         inner join stock s on p.id = s.product_id
         where p.id = $1;

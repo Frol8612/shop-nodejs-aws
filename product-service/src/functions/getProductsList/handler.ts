@@ -15,7 +15,7 @@ const getProductsList = async (event: IEvent<null>): Promise<IResponse> => {
     await db.connect();
 
     const { rows: products } = await db.query<IProduct>(`
-      select p.id, p.title, p.description, p.price, s.count
+      select p.id, p.title, p.description, p.price::float, s.count
       from product p
       inner join stock s on p.id = s.product_id;
     `);

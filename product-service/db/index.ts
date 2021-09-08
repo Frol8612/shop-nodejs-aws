@@ -12,4 +12,4 @@ const dbOptions: ClientConfig = {
   connectionTimeoutMillis: 5000,
 };
 
-export const db = new Client(dbOptions);
+export const getDb = () => new Client(dbOptions);

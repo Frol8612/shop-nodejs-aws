@@ -5,9 +5,10 @@ import { getResponse } from '@libs/handlerResponse';
 import {
   IProduct, IResponse, HttpStatusCode, IMessage, IEvent,
 } from '@models';
-import { db } from '@db';
+import { getDb } from '@db';
 
 const getProductsList = async (event: IEvent<null>): Promise<IResponse> => {
+  const db = getDb();
   console.log(event);
 
   try {

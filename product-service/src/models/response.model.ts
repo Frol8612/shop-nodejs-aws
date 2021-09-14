@@ -4,7 +4,7 @@ export interface IResponse {
   body?: string;
 }
 
-export interface IErrorMessage {
+export interface IMessage {
   message: string;
 }
 

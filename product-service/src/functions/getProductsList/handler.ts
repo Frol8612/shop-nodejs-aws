@@ -1,19 +1,30 @@
 import 'source-map-support/register';
 
 import { middyfy } from '@libs/lambda';
-import { getProducts } from '@libs/getData';
 import { getResponse } from '@libs/handlerResponse';
 import {
-  IProduct, IResponse, HttpStatusCode, IErrorMessage,
+  IProduct, IResponse, HttpStatusCode, IMessage, ProxyEvent,
 } from '@models';
+import { getDb } from '@db';
 
-const getProductsList = async (): Promise<IResponse> => {
+const getProductsList = async (event: ProxyEvent<null>): Promise<IResponse> => {
+  const db = getDb();
+  console.log(event);
+
   try {
-    const data: IProduct[] = await getProducts();
+    await db.connect();
 
-    return getResponse<IProduct[]>(data, HttpStatusCode.OK);
+    const { rows: products } = await db.query<IProduct>(`
+      select p.id, p.title, p.description, p.price::float, s.count
+      from product p
+      inner join stock s on p.id = s.product_id;
+    `);
+
+    return getResponse<IProduct[]>(products, HttpStatusCode.OK);
   } catch {
-    return getResponse<IErrorMessage>({ message: 'Internal server error' }, HttpStatusCode.INTERNAL_SERVER);
+    return getResponse<IMessage>({ message: 'Internal server error' }, HttpStatusCode.INTERNAL_SERVER);
+  } finally {
+    await db.end();
   }
 };
 

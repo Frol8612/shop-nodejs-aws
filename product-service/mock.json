@@ -1,0 +1,11 @@
+{
+  "pathParameters": {
+    "productId": "7a390a4e-1a2c-47a0-926b-b5e15991f96a"
+  },
+  "body": {
+    "title": "title-1",
+    "description": "description-1",
+    "price": 1,
+    "count": 1
+  }
+}

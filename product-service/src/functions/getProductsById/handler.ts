@@ -1,32 +1,42 @@
 import 'source-map-support/register';
 
-import type { APIGatewayProxyEvent } from 'aws-lambda';
-
 import { middyfy } from '@libs/lambda';
 import {
-  IProduct, IResponse, HttpStatusCode, IErrorMessage,
+  IProduct, IResponse, HttpStatusCode, IMessage, ProxyEvent,
 } from '@models';
-import { getProduct } from '@libs/getData';
 import { getResponse } from '@libs/handlerResponse';
+import { getDb } from '@db';
 
-const getProductsById = async (event: APIGatewayProxyEvent): Promise<IResponse> => {
+const getProductsById = async (event: ProxyEvent<null>): Promise<IResponse> => {
+  const db = getDb();
+  console.log(event);
+
   try {
     const { productId } = event.pathParameters;
-    const patternId = /(?=.*\d)(?=.*[a-zA-Z]).*$/;
+    const patternId = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+
+    await db.connect();
 
     if (productId && patternId.test(productId)) {
-      const product: IProduct = await getProduct(productId);
+      const { rows: [product] } = await db.query<IProduct>(`
+        select p.id, p.title, p.description, p.price::float, s.count
+        from product p
+        inner join stock s on p.id = s.product_id
+        where p.id = $1;
+      `, [productId]);
 
       if (product) {
         return getResponse<IProduct>(product, HttpStatusCode.OK);
       }
 
-      return getResponse<IErrorMessage>({ message: 'Product not found' }, HttpStatusCode.NOT_FOUND);
+      return getResponse<IMessage>({ message: 'Product not found' }, HttpStatusCode.NOT_FOUND);
     }
 
-    return getResponse<IErrorMessage>({ message: 'Bad request, productId should contain numbers and letters' }, HttpStatusCode.BAD_REQUEST);
+    return getResponse<IMessage>({ message: 'Bad request, productId should contain numbers and letters' }, HttpStatusCode.BAD_REQUEST);
   } catch {
-    return getResponse<IErrorMessage>({ message: 'Internal server error' }, HttpStatusCode.INTERNAL_SERVER);
+    return getResponse<IMessage>({ message: 'Internal server error' }, HttpStatusCode.INTERNAL_SERVER);
+  } finally {
+    await db.end();
   }
 };
 

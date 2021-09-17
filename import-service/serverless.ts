@@ -52,7 +52,16 @@ const serverlessConfiguration: AWS = {
             IgnorePublicAcls: true,
             BlockPublicPolicy: true,
             RestrictPublicBuckets: true,
-         }
+         },
+         CorsConfiguration: {
+          CorsRules: [
+            {
+              AllowedOrigins: ['*'],
+              AllowedHeaders: ['*'],
+              AllowedMethods: ['PUT'],
+            }
+          ],
+         },
         },
       },
     },

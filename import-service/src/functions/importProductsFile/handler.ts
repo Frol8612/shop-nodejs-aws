@@ -13,16 +13,15 @@ const importProductsFile = async (event: APIGatewayProxyEvent): Promise<IRespons
     const { name } = event.queryStringParameters;
 
     if (name) {
-      const uploadedPath = `uploaded/${name}`;
       const s3 = new S3({ region: REGION });
       const params = {
         Bucket: BUCKET_NAME,
-        Key: uploadedPath,
+        Key: `uploaded/${name}`,
         Expires: 60,
         ContentType: 'text/csv',
       };
-      const url = await s3.getSignedUrlPromise('putObgect', params);
-  
+      const url = await s3.getSignedUrlPromise('putObject', params);
+
       if (url) {
         return formatJSONResponse(url, HttpStatusCode.OK);
       }
@@ -30,7 +29,9 @@ const importProductsFile = async (event: APIGatewayProxyEvent): Promise<IRespons
       return formatJSONResponse({}, HttpStatusCode.NOT_FOUND);
     }
 
-    return formatJSONResponse({}, HttpStatusCode.BAD_REQUEST);
+    return formatJSONResponse({
+      message: 'Bad request',
+    }, HttpStatusCode.BAD_REQUEST);
   } catch {
     return formatJSONResponse({
       message: 'Internal server error',

@@ -16,18 +16,5 @@ export default {
         }
       }
     },
-    // {
-    //   s3: {
-    //     bucket: bucketName,
-    //     event: 's3:ObjectCreated:*',
-    //     rules: [
-    //       {
-    //         prefix: 'uploaded/',
-    //         suffix: '.csv',
-    //       }
-    //     ],
-    //     existing: true,
-    //   }
-    // }
   ]
 }

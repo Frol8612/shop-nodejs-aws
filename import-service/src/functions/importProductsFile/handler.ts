@@ -21,17 +21,11 @@ const importProductsFile = async (event: APIGatewayProxyEvent): Promise<IRespons
         ContentType: 'text/csv',
       };
       const url = await s3.getSignedUrlPromise('putObject', params);
-
-      if (url) {
-        return formatJSONResponse(url, HttpStatusCode.OK);
-      }
   
-      return formatJSONResponse({}, HttpStatusCode.NOT_FOUND);
+      return formatJSONResponse(url, HttpStatusCode.OK);
     }
 
-    return formatJSONResponse({
-      message: 'Bad request',
-    }, HttpStatusCode.BAD_REQUEST);
+    return formatJSONResponse({ message: 'Bad request' }, HttpStatusCode.BAD_REQUEST);
   } catch {
     return formatJSONResponse({
       message: 'Internal server error',

@@ -1,6 +1,7 @@
 import type { AWS } from '@serverless/typescript';
 
 import importProductsFile from '@functions/importProductsFile';
+import importFileParser from '@functions/importFileParser';
 import { BUCKET_NAME, REGION } from '@libs/constants';
 
 const serverlessConfiguration: AWS = {
@@ -40,28 +41,28 @@ const serverlessConfiguration: AWS = {
     ],
   },
   // import the function via paths
-  functions: { importProductsFile },
+  functions: { importProductsFile, importFileParser },
   resources: {
     Resources: {
       ImportFileS3Bucket: {
         Type: 'AWS::S3::Bucket',
         Properties: {
           BucketName: BUCKET_NAME,
-          PublicAccessBlockConfiguration:{
+          PublicAccessBlockConfiguration: {
             BlockPublicAcls: true,
             IgnorePublicAcls: true,
             BlockPublicPolicy: true,
             RestrictPublicBuckets: true,
-         },
-         CorsConfiguration: {
-          CorsRules: [
-            {
-              AllowedOrigins: ['*'],
-              AllowedHeaders: ['*'],
-              AllowedMethods: ['PUT'],
-            }
-          ],
-         },
+          },
+          CorsConfiguration: {
+            CorsRules: [
+              {
+                AllowedOrigins: ['*'],
+                AllowedHeaders: ['*'],
+                AllowedMethods: ['PUT'],
+              },
+            ],
+          },
         },
       },
     },

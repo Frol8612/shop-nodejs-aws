@@ -17,7 +17,7 @@ const importFileParser = async (event: S3Event): Promise<void> => {
     }).createReadStream();
 
     s3Stream
-      .pipe(csv())
+      .pipe(csv.default())
       .on('data', (data) => {
         console.log(data);
       })
@@ -30,7 +30,7 @@ const importFileParser = async (event: S3Event): Promise<void> => {
           Key: record.s3.object.key.replace('uploaded', 'parsed'),
         }).promise();
 
-        console.log(`Copied into ${BUCKET_NAME}/${record.s3.object.key.replace('uploaded', 'parsed')}`)
+        console.log(`Copied into ${BUCKET_NAME}/${record.s3.object.key.replace('uploaded', 'parsed')}`);
       });
   });
 }

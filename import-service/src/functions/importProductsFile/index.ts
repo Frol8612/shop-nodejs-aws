@@ -11,10 +11,10 @@ export default {
           parameters: {
             querystrings: {
               name: true,
-            }
-          }
-        }
-      }
+            },
+          },
+        },
+      },
     },
-  ]
-}
+  ],
+};

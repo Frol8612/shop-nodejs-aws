@@ -21,7 +21,7 @@ const importProductsFile = async (event: APIGatewayProxyEvent): Promise<IRespons
         ContentType: 'text/csv',
       };
       const url = await s3.getSignedUrlPromise('putObject', params);
-  
+
       return formatJSONResponse(url, HttpStatusCode.OK);
     }
 
@@ -29,8 +29,8 @@ const importProductsFile = async (event: APIGatewayProxyEvent): Promise<IRespons
   } catch {
     return formatJSONResponse({
       message: 'Internal server error',
-    }, HttpStatusCode.INTERNAL_SERVER)
+    }, HttpStatusCode.INTERNAL_SERVER);
   }
-}
+};
 
 export const main = middyfy(importProductsFile);

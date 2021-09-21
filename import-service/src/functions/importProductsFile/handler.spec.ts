@@ -1,10 +1,9 @@
 import { Handler } from 'aws-lambda';
 import AWSMock from 'aws-sdk-mock';
+import AWS from 'aws-sdk';
 
 import * as lambda from '@libs/lambda';
 import { HttpStatusCode } from '@models/response.model';
-
-AWSMock.setSDK('aws-sdk');
 
 describe('importProductsFile', () => {
   let main;
@@ -15,8 +14,13 @@ describe('importProductsFile', () => {
 
   beforeEach(async () => {
     jest.spyOn(lambda, 'middyfy').mockImplementation((handler: Handler) => handler as never);
+    AWSMock.setSDKInstance(AWS);
 
     main = (await import('./handler')).main;
+  });
+
+  afterEach(() => {
+    AWSMock.restore('S3');
   });
 
   afterAll(() => {
@@ -33,16 +37,32 @@ describe('importProductsFile', () => {
 
     AWSMock.mock('S3', 'getSignedUrl', (_: any, __: any, callback: any) => callback(null, name));
 
-    expect(await main({ queryStringParameters: { name }})).toEqual(expectedResult);
+    expect(await main({ queryStringParameters: { name } })).toEqual(expectedResult);
   });
 
-  // it('should return error message with status 500', async () => {
-  //   const expectedResult = {
-  //     body: JSON.stringify({ message: 'Internal server error' }),
-  //     statusCode: HttpStatusCode.INTERNAL_SERVER,
-  //     headers,
-  //   } as any;
+  it('should return error message with status 400', async () => {
+    const name = 'name-1';
+    const expectedResult = {
+      body: JSON.stringify({ message: 'Bad request' }),
+      statusCode: HttpStatusCode.BAD_REQUEST,
+      headers,
+    } as any;
 
-  //   expect(await main({})).toEqual(expectedResult);
-  // });
+    AWSMock.mock('S3', 'getSignedUrl', (_: any, __: any, callback: any) => callback(null, name));
+
+    expect(await main({ queryStringParameters: {} })).toEqual(expectedResult);
+  });
+
+  it('should return error message with status 500', async () => {
+    const name = 'name-1';
+    const expectedResult = {
+      body: JSON.stringify({ message: 'Internal server error' }),
+      statusCode: HttpStatusCode.INTERNAL_SERVER,
+      headers,
+    } as any;
+
+    AWSMock.mock('S3', 'getSignedUrl', (_: any, __: any, callback: any) => callback('error'));
+
+    expect(await main({ queryStringParameters: { name } })).toEqual(expectedResult);
+  });
 });

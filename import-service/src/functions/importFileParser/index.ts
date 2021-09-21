@@ -9,13 +9,11 @@ export default {
         bucket: BUCKET_NAME,
         event: 's3:ObjectCreated:*',
         rules: [
-          {
-            prefix: 'uploaded/',
-            suffix: '.csv',
-          }
+          { prefix: 'uploaded/' },
+          { suffix: '.csv' },
         ],
         existing: true,
-      }
-    }
-  ]
-}
+      },
+    },
+  ],
+};

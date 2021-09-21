@@ -37,11 +37,12 @@ const serverlessConfiguration: AWS = {
         Effect: 'Allow',
         Action: ['s3:*'],
         Resource: [`arn:aws:s3:::${BUCKET_NAME}/*`],
-      }
+      },
     ],
   },
   // import the function via paths
   functions: { importProductsFile, importFileParser },
+  useDotenv: true,
   resources: {
     Resources: {
       ImportFileS3Bucket: {
@@ -70,8 +71,8 @@ const serverlessConfiguration: AWS = {
       ImportFileBucketOutput: {
         Value: {
           Ref: 'ImportFileS3Bucket',
-        }
-      }
+        },
+      },
     },
   },
 };

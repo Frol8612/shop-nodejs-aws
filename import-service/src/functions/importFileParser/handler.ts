@@ -10,7 +10,7 @@ import { BUCKET_NAME, REGION } from '@libs/constants';
 const importFileParser = async (event: S3Event): Promise<void> => {
   const s3 = new S3({ region: REGION });
 
-  event.Records.forEach(record => {
+  event.Records.forEach((record) => {
     const s3Stream = s3.getObject({
       Bucket: BUCKET_NAME,
       Key: record.s3.object.key,
@@ -33,6 +33,6 @@ const importFileParser = async (event: S3Event): Promise<void> => {
         console.log(`Copied into ${BUCKET_NAME}/${record.s3.object.key.replace('uploaded', 'parsed')}`);
       });
   });
-}
+};
 
 export const main = middyfy(importFileParser);

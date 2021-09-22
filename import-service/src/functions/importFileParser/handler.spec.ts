@@ -46,7 +46,7 @@ describe('importFileParser', () => {
     jest.resetModules();
   });
 
-  it('should return url with status 200', async () => {
+  it('should call getObject and copyObject', async () => {
     const key1 = 'uploaded/test.csv';
     const key2 = 'parsed/test.csv';
 

@@ -25,6 +25,9 @@ const serverlessConfiguration: AWS = {
     },
     environment: {
       AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
+      SQS_URL: {
+        Ref: '${cf:product-service.catalogItemsQueue}',
+      },
     },
     lambdaHashingVersion: '20201221',
     iamRoleStatements: [
@@ -38,6 +41,18 @@ const serverlessConfiguration: AWS = {
         Action: ['s3:*'],
         Resource: [`arn:aws:s3:::${BUCKET_NAME}/*`],
       },
+      {
+        Effect: 'Allow',
+        Action: ['sqs:*'],
+        Resource: [
+          {
+            'Fn::GetAtt': [
+              '${cf:product-service.catalogItemsQueue}',
+              'Arn',
+            ],
+          },
+        ],
+      }
     ],
   },
   // import the function via paths

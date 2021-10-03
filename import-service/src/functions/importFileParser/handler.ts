@@ -22,8 +22,8 @@ const importFileParser = async (event: S3Event): Promise<void> => {
       .on('data', (data) => {
         sqs.sendMessage({
           QueueUrl: process.env.SQS_URL,
-          MessageBody: data,
-        }, () => console.log(`Send message for: ${data}`));
+          MessageBody: JSON.stringify(data),
+        }, () => console.log('Send email:', data));
       })
       .on('end', async () => {
         console.log(`Copy from ${BUCKET_NAME}/${record.s3.object.key}`);

@@ -46,22 +46,13 @@ const serverlessConfiguration: AWS = {
     iamRoleStatements: [
       {
         Effect: 'Allow',
-        Action: ['sqs:*'],
-        Resource: [
-          {
-            'Fn::GetAtt': [
-              'SQSQueue',
-              'Arn',
-            ],
-          },
-        ],
+        Action: 'sqs:*',
+        Resource: { 'Fn::GetAtt': ['SQSQueue', 'Arn'] },
       },
       {
         Effect: 'Allow',
-        Action: ['sns:*'],
-        Resource: {
-          Ref: 'SNSTopic',
-        },
+        Action: 'sns:*',
+        Resource: { Ref: 'SNSTopic' },
       },
     ],
   },
@@ -91,11 +82,27 @@ const serverlessConfiguration: AWS = {
       SNSSubscription: {
         Type: 'AWS::SNS::Subscription',
         Properties: {
-          Endpoint: 'my-email@a.com',
+          Endpoint: 'testsimply@yandex.by',
           Protocol: 'email',
           TopicArn: {
             Ref: 'SNSTopic',
           },
+        },
+      },
+    },
+    Outputs: {
+      CatalogItemsQueueOutput: {
+        Value: {
+          Ref: 'SQSQueue',
+        },
+        Export: {
+          Name: 'SQSQueueURL',
+        },
+      },
+      CatalogItemsQueueArnOutput: {
+        Value: { 'Fn::GetAtt': ['SQSQueue', 'Arn'] },
+        Export: {
+          Name: 'SQSQueueArn',
         },
       },
     },

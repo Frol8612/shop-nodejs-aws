@@ -14,19 +14,19 @@ const catalogBatchProcess = async (event: SQSEvent): Promise<void> => {
 
   try {
     await db.connect();
-    const products = event.Records.map(({ body }) => body);
+    const products = event.Records.map(({ body }) => JSON.parse(body));
 
-    sns.publish({
+    await sns.publish({
       Subject: 'Successfully',
       Message: JSON.stringify(products),
       TopicArn: process.env.SNS_ARN,
-    }, () => console.log(`Send email message about create products: ${products}`));
+    }).promise();
   } catch {
-    sns.publish({
+    await sns.publish({
       Subject: 'Error',
       Message: 'Internal server error',
       TopicArn: process.env.SNS_ARN,
-    }, () => console.log('Send email message about error'));
+    }).promise();
   } finally {
     await db.end();
   }

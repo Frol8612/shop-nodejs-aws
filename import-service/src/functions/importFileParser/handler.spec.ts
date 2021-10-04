@@ -28,6 +28,9 @@ jest.mock('aws-sdk', () => {
       getObject: getObjectMock,
       copyObject: putObjectMock,
     })),
+    SQS: jest.fn(() => ({
+      sendMessage: jest.fn(),
+    })),
   };
 });
 

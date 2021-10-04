@@ -1,72 +1,76 @@
-// import { Handler } from 'aws-lambda';
+import { Handler } from 'aws-lambda';
+import { SNS } from 'aws-sdk';
 
-// import * as lambda from '@libs/lambda';
-// import { HttpStatusCode } from '@models';
-// import { getDb } from '@db';
+import * as lambda from '@libs/lambda';
+import { getDb } from '@db';
 
-// jest.mock('@db', () => {
-//   const mockGetDb = {
-//     connect: jest.fn(),
-//     query: jest.fn(),
-//     end: jest.fn(),
-//   };
-//   return { getDb: jest.fn(() => mockGetDb) };
-// });
+jest.mock('@db', () => {
+  const mockGetDb = {
+    connect: jest.fn(),
+    query: jest.fn(),
+    end: jest.fn(),
+  };
+  return { getDb: jest.fn(() => mockGetDb) };
+});
 
-// describe('getProductsList', () => {
-//   let main;
-//   let db;
-//   const headers = {
-//     'Access-Control-Allow-Origin': '*',
-//     'Access-Control-Allow-Credentials': true,
-//   };
-//   const products = [{
-//     count: 1,
-//     description: 'description-1',
-//     id: 'id-1',
-//     price: 3,
-//     title: 'title-1',
-//   },
-//   {
-//     count: 2,
-//     description: 'description-2',
-//     id: 'id-2',
-//     price: 4,
-//     title: 'title-2',
-//   }];
+jest.mock('aws-sdk', () => {
+  const publishMock = jest.fn(() => ({
+    promise: jest.fn(),
+  }));
 
-//   beforeEach(async () => {
-//     jest.spyOn(lambda, 'middyfy').mockImplementation((handler: Handler) => handler as never);
+  return {
+    SNS: jest.fn(() => ({
+      publish: publishMock,
+    })),
+  };
+});
 
-//     db = getDb();
-//     main = (await import('./handler')).main;
-//   });
+describe('catalogBatchProcess', () => {
+  let main;
+  let db;
+  let mockSNS;
+  const product = {
+    count: 1,
+    description: 'description-1',
+    price: 3,
+    title: 'title-1',
+  };
 
-//   afterAll(() => {
-//     jest.resetModules();
-//   });
+  beforeEach(async () => {
+    jest.spyOn(lambda, 'middyfy').mockImplementation((handler: Handler) => handler as never);
 
-//   it('should return products with status 200', async () => {
-//     const expectedResult = {
-//       body: JSON.stringify(products),
-//       statusCode: HttpStatusCode.OK,
-//       headers,
-//     } as any;
+    db = getDb();
+    main = (await import('./handler')).main;
+    mockSNS = new SNS({});
+  });
 
-//     db.query.mockResolvedValueOnce({ rows: products });
+  afterAll(() => {
+    jest.resetModules();
+  });
 
-//     expect(await main({})).toEqual(expectedResult);
-//   });
+  it('should call publish with subject Successfully', async () => {
+    const SNS_ARN = 'SNS_ARN';
+    db.query.mockResolvedValue({ rows: [{ id: '8154d2cf-ec01-4cdd-b7af-b104164c7112', ...product }] });
+    process.env.SNS_ARN = SNS_ARN;
+    await main({ Records: [{ body: JSON.stringify(product) }] });
 
-//   it('should return error message with status 500', async () => {
-//     const expectedResult = {
-//       body: JSON.stringify({ message: 'Internal server error' }),
-//       statusCode: HttpStatusCode.INTERNAL_SERVER,
-//       headers,
-//     } as any;
+    expect(mockSNS.publish).toBeCalledWith({
+      Subject: 'Successfully',
+      Message: JSON.stringify([product]),
+      TopicArn: SNS_ARN,
+    });
+  });
 
-//     db.query.mockRejectedValueOnce(new Error());
+  it('should call publish with subject Error', async () => {
+    const SNS_ARN = 'SNS_ARN';
+    db.query.mockRejectedValueOnce(new Error());
+    process.env.SNS_ARN = SNS_ARN;
+    await main({ Records: [{ body: JSON.stringify(product) }] });
 
-//     expect(await main({})).toEqual(expectedResult);
-//   });
-// });
+    expect(mockSNS.publish).toBeCalledWith({
+      Subject: 'Error',
+      Message: 'Internal server error',
+      TopicArn: SNS_ARN,
+    });
+  });
+});

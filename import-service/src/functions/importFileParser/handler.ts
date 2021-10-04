@@ -2,7 +2,7 @@ import 'source-map-support/register';
 
 import type { S3Event } from 'aws-lambda';
 import { S3, SQS } from 'aws-sdk';
-import * as csv from 'csv-parser';
+import csv from 'csv-parse';
 
 import { middyfy } from '@libs/lambda';
 import { BUCKET_NAME, REGION } from '@libs/constants';
@@ -18,7 +18,7 @@ const importFileParser = async (event: S3Event): Promise<void> => {
     }).createReadStream();
 
     s3Stream
-      .pipe(csv.default())
+      .pipe(csv({ columns: true, skip_empty_lines: true, bom: true }))
       .on('data', (data) => {
         sqs.sendMessage({
           QueueUrl: process.env.SQS_URL,

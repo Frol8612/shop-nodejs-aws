@@ -82,10 +82,22 @@ const serverlessConfiguration: AWS = {
       SNSSubscription: {
         Type: 'AWS::SNS::Subscription',
         Properties: {
-          Endpoint: 'testsimply@yandex.by',
+          Endpoint: '${env:EMAIL}',
           Protocol: 'email',
-          TopicArn: {
-            Ref: 'CreateProductTopic',
+          TopicArn: { Ref: 'CreateProductTopic' },
+          FilterPolicy: {
+            count: [{ numeric: ['<', 100] }],
+          },
+        },
+      },
+      SNSSubscriptionAdmin: {
+        Type: 'AWS::SNS::Subscription',
+        Properties: {
+          Endpoint: '${env:EMAIL_ADMIN}',
+          Protocol: 'email',
+          TopicArn: { Ref: 'CreateProductTopic' },
+          FilterPolicy: {
+            count: [{ numeric: ['>=', 100] }],
           },
         },
       },

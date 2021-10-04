@@ -8,7 +8,7 @@ export default {
         batchSize: 5,
         arn: {
           'Fn::GetAtt': [
-            'SQSQueue',
+            'CatalogItemsQueue',
             'Arn',
           ],
         },

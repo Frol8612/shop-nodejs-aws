@@ -26,7 +26,7 @@ const serverlessConfiguration: AWS = {
     environment: {
       AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
       SQS_URL: {
-        'Fn::ImportValue': 'SQSQueueURL',
+        'Fn::ImportValue': 'CatalogItemsQueueURL',
       },
     },
     lambdaHashingVersion: '20201221',
@@ -39,7 +39,7 @@ const serverlessConfiguration: AWS = {
       {
         Effect: 'Allow',
         Action: 'sqs:*',
-        Resource: { 'Fn::ImportValue': 'SQSQueueArn' },
+        Resource: { 'Fn::ImportValue': 'CatalogItemsQueueArn' },
       },
     ],
   },

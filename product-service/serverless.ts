@@ -36,10 +36,10 @@ const serverlessConfiguration: AWS = {
       PG_USERNAME: '${env:PG_USERNAME}',
       PG_PASSWORD: '${env:PG_PASSWORD}',
       SQS_URL: {
-        Ref: 'SQSQueue',
+        Ref: 'CatalogItemsQueue',
       },
       SNS_ARN: {
-        Ref: 'SNSTopic',
+        Ref: 'CreateProductTopic',
       },
     },
     lambdaHashingVersion: '20201221',
@@ -47,12 +47,12 @@ const serverlessConfiguration: AWS = {
       {
         Effect: 'Allow',
         Action: 'sqs:*',
-        Resource: { 'Fn::GetAtt': ['SQSQueue', 'Arn'] },
+        Resource: { 'Fn::GetAtt': ['CatalogItemsQueue', 'Arn'] },
       },
       {
         Effect: 'Allow',
         Action: 'sns:*',
-        Resource: { Ref: 'SNSTopic' },
+        Resource: { Ref: 'CreateProductTopic' },
       },
     ],
   },
@@ -66,14 +66,14 @@ const serverlessConfiguration: AWS = {
   useDotenv: true,
   resources: {
     Resources: {
-      SQSQueue: {
+      CatalogItemsQueue: {
         Type: 'AWS::SQS::Queue',
         Properties: {
           QueueName: 'catalogItemsQueue',
           ReceiveMessageWaitTimeSeconds: 20,
         },
       },
-      SNSTopic: {
+      CreateProductTopic: {
         Type: 'AWS::SNS::Topic',
         Properties: {
           TopicName: 'createProductTopic',
@@ -85,7 +85,7 @@ const serverlessConfiguration: AWS = {
           Endpoint: 'testsimply@yandex.by',
           Protocol: 'email',
           TopicArn: {
-            Ref: 'SNSTopic',
+            Ref: 'CreateProductTopic',
           },
         },
       },
@@ -93,16 +93,16 @@ const serverlessConfiguration: AWS = {
     Outputs: {
       CatalogItemsQueueOutput: {
         Value: {
-          Ref: 'SQSQueue',
+          Ref: 'CatalogItemsQueue',
         },
         Export: {
-          Name: 'SQSQueueURL',
+          Name: 'CatalogItemsQueueURL',
         },
       },
       CatalogItemsQueueArnOutput: {
-        Value: { 'Fn::GetAtt': ['SQSQueue', 'Arn'] },
+        Value: { 'Fn::GetAtt': ['CatalogItemsQueue', 'Arn'] },
         Export: {
-          Name: 'SQSQueueArn',
+          Name: 'CatalogItemsQueueArn',
         },
       },
     },

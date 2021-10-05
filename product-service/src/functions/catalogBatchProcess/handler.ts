@@ -23,7 +23,7 @@ const catalogBatchProcess = async (event: SQSEvent): Promise<void> => {
     await db.query('begin');
 
     const products = event.Records.map(({ body }) => JSON.parse(body));
-
+    const maxCount = Math.max(...products.map(({ count }) => Number(count)));
     const insertProductText = `
       insert into product (title, description, price) values ${expand(products.length, 3)}
       on conflict (title) do update
@@ -53,6 +53,12 @@ const catalogBatchProcess = async (event: SQSEvent): Promise<void> => {
       Subject: 'Successfully',
       Message: JSON.stringify(products),
       TopicArn: process.env.SNS_ARN,
+      MessageAttributes: {
+        count: {
+          DataType: 'Number',
+          StringValue: String(maxCount),
+        },
+      },
     }).promise();
   } catch {
     await db.query('rollback');

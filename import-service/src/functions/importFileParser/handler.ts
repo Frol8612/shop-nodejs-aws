@@ -1,14 +1,15 @@
 import 'source-map-support/register';
 
 import type { S3Event } from 'aws-lambda';
-import { S3 } from 'aws-sdk';
-import * as csv from 'csv-parser';
+import { S3, SQS } from 'aws-sdk';
+import csv from 'csv-parse';
 
 import { middyfy } from '@libs/lambda';
 import { BUCKET_NAME, REGION } from '@libs/constants';
 
 const importFileParser = async (event: S3Event): Promise<void> => {
   const s3 = new S3({ region: REGION });
+  const sqs = new SQS();
 
   event.Records.forEach((record) => {
     const s3Stream = s3.getObject({
@@ -17,9 +18,12 @@ const importFileParser = async (event: S3Event): Promise<void> => {
     }).createReadStream();
 
     s3Stream
-      .pipe(csv.default())
+      .pipe(csv({ columns: true, skip_empty_lines: true, bom: true }))
       .on('data', (data) => {
-        console.log(data);
+        sqs.sendMessage({
+          QueueUrl: process.env.SQS_URL,
+          MessageBody: JSON.stringify(data),
+        }, () => console.log('Send email:', data));
       })
       .on('end', async () => {
         console.log(`Copy from ${BUCKET_NAME}/${record.s3.object.key}`);

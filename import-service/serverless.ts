@@ -25,18 +25,21 @@ const serverlessConfiguration: AWS = {
     },
     environment: {
       AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
+      SQS_URL: {
+        'Fn::ImportValue': 'CatalogItemsQueueURL',
+      },
     },
     lambdaHashingVersion: '20201221',
     iamRoleStatements: [
       {
         Effect: 'Allow',
-        Action: ['s3:ListBucket'],
-        Resource: [`arn:aws:s3:::${BUCKET_NAME}`],
+        Action: ['s3:ListBucket', 's3:*'],
+        Resource: [`arn:aws:s3:::${BUCKET_NAME}`, `arn:aws:s3:::${BUCKET_NAME}/*`],
       },
       {
         Effect: 'Allow',
-        Action: ['s3:*'],
-        Resource: [`arn:aws:s3:::${BUCKET_NAME}/*`],
+        Action: 'sqs:*',
+        Resource: { 'Fn::ImportValue': 'CatalogItemsQueueArn' },
       },
     ],
   },

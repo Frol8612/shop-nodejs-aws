@@ -1,7 +1,7 @@
 import 'source-map-support/register';
 
 import type { APIGatewayProxyEvent } from 'aws-lambda';
-import { S3 } from 'aws-sdk';
+import { Endpoint, S3 } from 'aws-sdk';
 
 import { formatJSONResponse } from '@libs/apiGateway';
 import { middyfy } from '@libs/lambda';
@@ -13,7 +13,15 @@ const importProductsFile = async (event: APIGatewayProxyEvent): Promise<IRespons
     const { name } = event.queryStringParameters;
 
     if (name) {
-      const s3 = new S3({ region: REGION });
+      const config = process.env.IS_OFFLINE ? {
+        endpoint: new Endpoint('http://localhost:3003'),
+        s3ForcePathStyle: true,
+        accessKeyId: 'S3RVER',
+        secretAccessKey: 'S3RVER',
+      } : {
+        region: REGION,
+      };
+      const s3 = new S3(config);
       const params = {
         Bucket: BUCKET_NAME,
         Key: `uploaded/${name}`,

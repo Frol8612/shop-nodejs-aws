@@ -24,6 +24,9 @@ const serverlessConfiguration: AWS = {
       allowMismatchedSignatures: true,
       cors: './s3-cors.xml',
     },
+    authorizerArn: {
+      'Fn::ImportValue': 'basicAuthorizerArn',
+    },
   },
   plugins: [
     'serverless-webpack',
@@ -82,6 +85,32 @@ const serverlessConfiguration: AWS = {
                 AllowedMethods: ['PUT'],
               },
             ],
+          },
+        },
+      },
+      GatewayResponseAccessDenied: {
+        Type: 'AWS::ApiGateway::GatewayResponse',
+        Properties: {
+          ResponseParameters: {
+            'gatewayresponse.header.Access-Control-Allow-Origin': "'*'",
+            'gatewayresponse.header.Access-Control-Allow-Headers': "'*'",
+          },
+          ResponseType: 'ACCESS_DENIED',
+          RestApiId: {
+            Ref: 'ApiGatewayRestApi',
+          },
+        },
+      },
+      GatewayResponseUnauthorized: {
+        Type: 'AWS::ApiGateway::GatewayResponse',
+        Properties: {
+          ResponseParameters: {
+            'gatewayresponse.header.Access-Control-Allow-Origin': "'*'",
+            'gatewayresponse.header.Access-Control-Allow-Headers': "'*'",
+          },
+          ResponseType: 'UNAUTHORIZED',
+          RestApiId: {
+            Ref: 'ApiGatewayRestApi',
           },
         },
       },

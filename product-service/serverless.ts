@@ -42,7 +42,6 @@ const serverlessConfiguration: AWS = {
     'serverless-offline-sqs',
     'serverless-offline',
     'serverless-offline-sns',
-    'serverless-dotenv-plugin',
     'serverless-export-env',
   ],
   provider: {

@@ -34,7 +34,6 @@
     "jest": "27.1.0",
     "json-schema-to-ts": "1.5.0",
     "serverless": "2.56.0",
-    "serverless-dotenv-plugin": "3.10.0",
     "serverless-export-env": "2.0.0",
     "serverless-offline": "8.0.0",
     "serverless-offline-sns": "0.68.0",

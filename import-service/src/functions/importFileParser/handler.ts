@@ -1,14 +1,22 @@
 import 'source-map-support/register';
 
 import type { S3Event } from 'aws-lambda';
-import { S3, SQS } from 'aws-sdk';
+import { S3, SQS, Endpoint } from 'aws-sdk';
 import csv from 'csv-parse';
 
 import { middyfy } from '@libs/lambda';
 import { BUCKET_NAME, REGION } from '@libs/constants';
 
 const importFileParser = async (event: S3Event): Promise<void> => {
-  const s3 = new S3({ region: REGION });
+  const config = process.env.IS_OFFLINE ? {
+    endpoint: new Endpoint('http://localhost:3003'),
+    s3ForcePathStyle: true,
+    accessKeyId: 'S3RVER',
+    secretAccessKey: 'S3RVER',
+  } : {
+    region: REGION,
+  };
+  const s3 = new S3(config);
   const sqs = new SQS();
 
   event.Records.forEach((record) => {
@@ -21,7 +29,7 @@ const importFileParser = async (event: S3Event): Promise<void> => {
       .pipe(csv({ columns: true, skip_empty_lines: true, bom: true }))
       .on('data', (data) => {
         sqs.sendMessage({
-          QueueUrl: process.env.SQS_URL,
+          QueueUrl: process.env.IS_OFFLINE ? 'http://localhost:9324/queue/catalogItemsQueue' : process.env.SQS_URL,
           MessageBody: JSON.stringify(data),
         }, () => console.log('Send email:', data));
       })

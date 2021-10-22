@@ -12,8 +12,27 @@ const serverlessConfiguration: AWS = {
       webpackConfig: './webpack.config.js',
       includeModules: true,
     },
+    'serverless-offline': {
+      httpPort: 3000,
+      websocketPort: 3001,
+      lambdaPort: 3002,
+    },
+    s3: {
+      host: 'localhost',
+      port: 3003,
+      directory: `${__dirname}/tmp`,
+      allowMismatchedSignatures: true,
+      cors: './s3-cors.xml',
+    },
+    authorizerArn: {
+      'Fn::ImportValue': 'basicAuthorizerArn',
+    },
   },
-  plugins: ['serverless-webpack', 'serverless-offline'],
+  plugins: [
+    'serverless-webpack',
+    'serverless-offline',
+    'serverless-s3-local',
+  ],
   provider: {
     name: 'aws',
     runtime: 'nodejs14.x',
@@ -66,6 +85,32 @@ const serverlessConfiguration: AWS = {
                 AllowedMethods: ['PUT'],
               },
             ],
+          },
+        },
+      },
+      GatewayResponseAccessDenied: {
+        Type: 'AWS::ApiGateway::GatewayResponse',
+        Properties: {
+          ResponseParameters: {
+            'gatewayresponse.header.Access-Control-Allow-Origin': "'*'",
+            'gatewayresponse.header.Access-Control-Allow-Headers': "'*'",
+          },
+          ResponseType: 'ACCESS_DENIED',
+          RestApiId: {
+            Ref: 'ApiGatewayRestApi',
+          },
+        },
+      },
+      GatewayResponseUnauthorized: {
+        Type: 'AWS::ApiGateway::GatewayResponse',
+        Properties: {
+          ResponseParameters: {
+            'gatewayresponse.header.Access-Control-Allow-Origin': "'*'",
+            'gatewayresponse.header.Access-Control-Allow-Headers': "'*'",
+          },
+          ResponseType: 'UNAUTHORIZED',
+          RestApiId: {
+            Ref: 'ApiGatewayRestApi',
           },
         },
       },

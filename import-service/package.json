@@ -35,6 +35,7 @@
     "json-schema-to-ts": "1.5.0",
     "serverless": "2.23.0",
     "serverless-offline": "8.2.0",
+    "serverless-s3-local": "0.6.20",
     "serverless-webpack": "5.3.5",
     "ts-jest": "27.0.5",
     "ts-loader": "8.0.15",
